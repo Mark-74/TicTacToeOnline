@@ -1,17 +1,31 @@
 let queue = [];
+let matches = {};
 let IDcounter = 0;
 
 function matchPlayer(playerID){ // ritorna true se matchato + id giocatore
-    if(queue.length > 0){
-        return true, queue.shift();
+    
+    // caso ad un giocatore in attesa si unisce un altro giocatore
+    if(matches[playerID] !== undefined){ 
+        const Player2ID = matches[playerID];
+        delete matches[playerID]
+
+        return { success: true, player2ID: Player2ID};
     }
 
-    // se player non è già in attesa
-    if(!queue.find(playerID)){
+    // caso giocatore si unisce ad uno già in attesa
+    if(queue.length > 0){
+        const Player2ID = queue.shift();
+        matches[Player2ID] = playerID;
+        
+        return { success: true, player2ID: Player2ID}; 
+    }
+
+    // caso giocatore non è già in attesa e non ha trovato una partita
+    if(!queue.find(id => id === playerID)){ // TODO: questo va dentro al caso precedente
         queue.push(playerID);
     }
 
-    return false, undefined
+    return { success: false, player2ID: undefined }
 }
 
 function getID(){

@@ -11,6 +11,7 @@ const app = express();
 const KEY = crypto.randomBytes(32).toString('hex');
 
 const { getID, matchPlayer } = require('./matchmaking.js');
+const { addMatch, checkIfMatchExists } = require('./game.js');
 
 //setup ejs for templates and templates folder
 app.set('view engine', 'ejs');
@@ -52,6 +53,7 @@ app.get('/login', async (req, res) => {
 })
 
 app.get('/chiedi-partita', async (req, res) => {
+    console.log('Nuova richiesta!')
     const cookie = req.cookies.session;
 
     if (!cookie) {
@@ -65,10 +67,17 @@ app.get('/chiedi-partita', async (req, res) => {
         return;
     }
 
-    const { success, gameID } = matchPlayer(jwt.decode(cookie).id)
+    const player1ID = jwt.decode(cookie).id
+
+    const { success, player2ID } = matchPlayer(player1ID);
+    console.log(success, player2ID);
     if (success) {
-        //TODO: crea partita
-        res.redirect('/?gameID=' + gameID)
+        console.log('ciao');
+        let { exists, gameID } = checkIfMatchExists(player1ID, player2ID);
+        if(!exists)
+            gameID = addMatch(player1ID, player2ID);
+
+        res.redirect('/?gameID=' + gameID);
     } else {
         res.status(404).send('No match found yet');
     }

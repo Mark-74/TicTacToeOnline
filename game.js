@@ -1,3 +1,6 @@
+let active_matches = {};
+let gameID = 0;
+
 class GameInstance {
     constructor(player1ID, player2ID, gameID){
         this.player1ID = player1ID;
@@ -46,3 +49,19 @@ class GameInstance {
     }
 
 }
+
+function addMatch(player1ID, player2ID){
+    active_matches[gameID] = new GameInstance(player1ID, player2ID, gameID);
+    return gameID ++;
+}
+
+function checkIfMatchExists(player1ID, player2ID){
+    active_matches.array.forEach(game => {
+        if((game.player1ID == player1ID || game.player1ID == player2ID) && (game.player2ID == player1ID || game.player2ID == player2ID))
+            return true, game.gameID;
+    });
+
+    return false, undefined;
+}
+
+module.exports = { addMatch, checkIfMatchExists }
