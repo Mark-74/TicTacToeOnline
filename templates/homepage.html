@@ -18,24 +18,30 @@
                 <div class="card-body d-flex flex-column justify-content-center align-items-center">
                   <h5 class="card-title fs-1">Tic Tac Toe!</h5>
                   <button type="button" class="btn btn-outline-warning custom-btn fs-1 p-5 text-dark mt-4 border-4 bg-opacity-25" onclick="ConnectToServer()">PLAY!</button>
+                  <text id="status" class="card-text mt-4"></text>
                 </div>
             </div>
         </div>
 
         <script>
+
+            const endpoint = "/chiedi-partita";
+
             function wait(seconds) {
                 return new Promise(resolve => setTimeout(resolve, seconds * 1000));
             }
 
             async function ConnectToServer()
             {
-                while(true)
-                {
-                    await fetch('/chiedi-partita', {
-                        
-                    });
-                    await wait(3);
-                }
+                document.getElementById('status').innerText = "Connceting to the server...";
+
+                var resp;
+                do{
+
+                    await wait(2);
+                    resp = await fetch(endpoint);
+
+                } while(!resp.ok);
             }
         </script>
 
