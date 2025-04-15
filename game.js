@@ -56,12 +56,12 @@ function addMatch(player1ID, player2ID){
 }
 
 function checkIfMatchExists(player1ID, player2ID){
-    active_matches.array.forEach(game => {
-        if((game.player1ID == player1ID || game.player1ID == player2ID) && (game.player2ID == player1ID || game.player2ID == player2ID))
-            return true, game.gameID;
-    });
+    for (const [gameID, instance] of Object.entries(active_matches)) {
+        if((instance.player1ID == player1ID || instance.player1ID == player2ID) && (instance.player2ID == player1ID || instance.player2ID == player2ID))
+            return { success: true, gameID: gameID }
+    }
 
-    return false, undefined;
+    return { success: false, gameID: undefined };
 }
 
 module.exports = { addMatch, checkIfMatchExists }

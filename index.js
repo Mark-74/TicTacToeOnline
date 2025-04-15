@@ -53,7 +53,6 @@ app.get('/login', async (req, res) => {
 })
 
 app.get('/chiedi-partita', async (req, res) => {
-    console.log('Nuova richiesta!')
     const cookie = req.cookies.session;
 
     if (!cookie) {
@@ -70,9 +69,7 @@ app.get('/chiedi-partita', async (req, res) => {
     const player1ID = jwt.decode(cookie).id
 
     const { success, player2ID } = matchPlayer(player1ID);
-    console.log(success, player2ID);
     if (success) {
-        console.log('ciao');
         let { exists, gameID } = checkIfMatchExists(player1ID, player2ID);
         if(!exists)
             gameID = addMatch(player1ID, player2ID);

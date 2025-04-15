@@ -13,7 +13,7 @@ function matchPlayer(playerID){ // ritorna true se matchato + id giocatore
     }
 
     // caso giocatore si unisce ad uno già in attesa
-    if(queue.length > 0){
+    if(queue.length > 0 && queue.indexOf(playerID) === -1){
         const Player2ID = queue.shift();
         matches[Player2ID] = playerID;
         
@@ -21,7 +21,7 @@ function matchPlayer(playerID){ // ritorna true se matchato + id giocatore
     }
 
     // caso giocatore non è già in attesa e non ha trovato una partita
-    if(!queue.find(id => id === playerID)){ // TODO: questo va dentro al caso precedente
+    if(queue.indexOf(playerID) === -1){ 
         queue.push(playerID);
     }
 
