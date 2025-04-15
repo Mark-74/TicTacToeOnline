@@ -58,7 +58,7 @@ function addMatch(player1ID, player2ID){
 function checkIfMatchExists(player1ID, player2ID){
     for (const [gameID, instance] of Object.entries(active_matches)) {
         if((instance.player1ID == player1ID || instance.player1ID == player2ID) && (instance.player2ID == player1ID || instance.player2ID == player2ID))
-            return { success: true, gameID: gameID }
+            return { success: true, gameID: instance.gameID }
     }
 
     return { success: false, gameID: undefined };
