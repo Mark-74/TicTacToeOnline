@@ -1,5 +1,5 @@
 let active_matches = {};
-let gameID = 0;
+let globalGameID = 0;
 
 class GameInstance {
     constructor(player1ID, player2ID, gameID){
@@ -51,17 +51,17 @@ class GameInstance {
 }
 
 function addMatch(player1ID, player2ID){
-    active_matches[gameID] = new GameInstance(player1ID, player2ID, gameID);
-    return gameID ++;
+    active_matches[globalGameID] = new GameInstance(player1ID, player2ID, globalGameID);
+    return globalGameID ++;
 }
 
 function checkIfMatchExists(player1ID, player2ID){
     for (const [gameID, instance] of Object.entries(active_matches)) {
         if((instance.player1ID == player1ID || instance.player1ID == player2ID) && (instance.player2ID == player1ID || instance.player2ID == player2ID))
-            return { success: true, gameID: instance.gameID }
+            return { exists: true, gameID: gameID }
     }
 
-    return { success: false, gameID: undefined };
+    return { exists: false, gameID: undefined };
 }
 
 module.exports = { addMatch, checkIfMatchExists }
