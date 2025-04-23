@@ -40,6 +40,10 @@ function auth(req, res, next) {
     next();
 }
 
+app.get('/', async (req, res) => {
+    res.render('homepage');
+})
+
 app.get('/games/:gameID', auth, async (req, res) => {
     const cookie = req.cookies.session;
     const playerID = jwt.decode(cookie).id;

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Tic Tac Toe Game</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
+        <style>
+            .cell{
+                width: 25%;
+                height: 25vh;
+                text-align: center;
+                vertical-align: middle;
+                cursor: pointer;
+                justify-content: center;
+                align-items: center;
+                border: 2px solid black;
+                display: flex;
+                font-size: 2rem;
+                background-color: white;
+            }
+            .cell:hover{
+                background-color: yellow;
+            }
+        </style>
+    </head>
+    <body class="d-flex justify-content-center align-item-center vh-100 bg-info">
+        <div class="container text-center">
+            <h2 class="mb-5 mt-4">Tic Tac Toe Game</h2>
+            <div class="row d-flex justify-content-center">
+                <div class="col-4 cell" id="00" onclick="SendMove(0,0)"></div>
+                <div class="col-4 cell" id="01" onclick="SendMove(0,1)"></div>
+                <div class="col-4 cell" id="02" onclick="SendMove(0,2)"></div>
+            </div>
+            <div class="row d-flex justify-content-center">
+                <div class="col-4 cell" id="10" onclick="SendMove(1,0)"></div>
+                <div class="col-4 cell" id="11" onclick="SendMove(1,1)"></div>
+                <div class="col-4 cell" id="12" onclick="SendMove(1,2)"></div>
+            </div>
+            <div class="row d-flex justify-content-center">
+                <div class="col-4 cell" id="20" onclick="SendMove(2,0)"></div>
+                <div class="col-4 cell" id="21" onclick="SendMove(2,1)"></div>
+                <div class="col-4 cell" id="22" onclick="SendMove(2,2)"></div>
+            </div>
+        </div>
+
+        <script>
+            const occupiedPos=[];
+            const url = window.location.pathname;
+            const id = parseInt(url.substring(url.lastIndexOf('/')+1));
+            const symbol = 'X';
+            const opponentStepSis = 'O';
+
+            function SendMove(row,col){
+                let data ={row, col};
+                if(occupiedPos.includes(data)){
+                    throw new Error("Mossa Invalida!");
+                    return;
+                }
+                let jsonString = JSON.stringify(data);
+                
+                fetch('/muovi/'+ id +'?row='+row+'&col='+col, {
+                    method: 'POST',
+                    headers:{
+                        'Content-Type':'application/json'
+                    },
+                    body: jsonString
+                })
+                .then(response => response.json()
+                .then(result => ({
+                    status: result.status,
+                })));
+                let ris = result.status;
+                if(ris){
+                    occupiedPos.push(data);
+                    document.getElementById(row.toString()+col.toString()).innerText = symbol;  
+                } else {
+                    throw new Error("Mossa invalida!");
+                }
+                return;
+
+            }
+
+
+        </script>
+    </body>
+</html>

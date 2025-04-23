@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Tris</title> 
+        <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+
+        <style>
+            .center-flex {
+                display: flex;
+                justify-content: center;    
+                align-items: center;
+            }
+
+            .card-width {
+                width: 30rem;
+            }
+
+            .custom-font {
+                font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif
+            }
+        </style>
+
+    </head>
+    <body class="bg-info bg-gradient">
+        <div class="center-flex container flex-column vh-100 ">
+            
+            <div class="center-flex card card-width border-2 border-black">
+                <div class="center-flex card-body flex-column">
+                  <h5 class="card-title fs-1 custom-font">Tic Tac Toe!</h5>
+                  <button id="play-button" type="button" class="btn btn-outline-warning fs-1 p-5 text-dark mt-4 border-4" onclick="ConnectToServer()">PLAY!</button>
+                  <p id="status" class="card-text mt-4">Welcome</p>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            const endpoint = "/chiedi-partita";
+
+            function wait(seconds) {
+                return new Promise(resolve => setTimeout(resolve, seconds * 1000));
+            }
+
+            async function ConnectToServer()
+            {
+                const status_text = document.getElementById('status');
+                const play_button = document.getElementById('play-button');
+
+                status_text.innerText = "Connecting to the server...";
+                play_button.disabled = true;
+
+                var resp;
+                do{
+
+                    await wait(2);
+                    resp = await fetch(endpoint, { redirect: 'manual' });
+                    console.log(resp.status)
+
+                } while(resp.status != 302);
+
+                const redirectUrl = resp.headers.get('Location');
+                window.location.href = redirectUrl;
+
+                status_text.innerText = "";
+                play_button.disabled = false;
+            }
+
+            addEventListener("load", async (event) => {
+                let res = await fetch("/login");
+            });
+        </script>
+        <script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
+    </body>
+</html>
