@@ -11,7 +11,7 @@ const app = express();
 const KEY = crypto.randomBytes(32).toString('hex');
 
 const { getID, matchPlayer } = require('./matchmaking.js');
-const { addMatch, checkIfMatchExists, playerIsPartOfGame } = require('./game.js');
+const { addMatch, checkIfMatchExists, playerIsPartOfGame, move } = require('./game.js');
 
 //setup ejs for templates and templates folder
 app.set('view engine', 'ejs');
@@ -40,10 +40,10 @@ function auth(req, res, next) {
     next();
 }
 
-app.get('/', auth, async (req, res) => {
+app.get('/games/:gameID', auth, async (req, res) => {
     const cookie = req.cookies.session;
     const playerID = jwt.decode(cookie).id;
-    const gameID = req.query.gameID;
+    const gameID = req.params.gameID;
 
     if(!gameID){
         res.status(400).send("Invalid gameID");
@@ -59,6 +59,32 @@ app.get('/', auth, async (req, res) => {
     res.send('!')
 })
 
+app.get('/muovi/:gameID', auth, async (req, res) => {
+    const cookie = req.cookies.session;
+    const playerID = jwt.decode(cookie).id;
+    const gameID = req.params.gameID;
+
+    if(!gameID){
+        res.status(400).send("Invalid gameID");
+        return;
+    }
+    
+    if(!playerIsPartOfGame(gameID, playerID)){
+        res.status(401).send("You are not part of this match! 😡");
+        return;
+    }
+
+    const [row, col] = [req.query.row, req.query.col];
+    if(!row || !col){
+        res.status(400).send("Invalid row or col");
+        return;
+    }
+
+    result = move(gameID, playerID, row, col);
+
+    res.status(200).json(result);
+})
+
 app.get('/chiedi-partita', auth, async (req, res) => {
     const cookie = req.cookies.session;
     
@@ -70,7 +96,7 @@ app.get('/chiedi-partita', auth, async (req, res) => {
         if(!exists)
             gameID = addMatch(player1ID, player2ID);
         
-        res.redirect('/?gameID=' + gameID);
+        res.redirect('/games/' + gameID);
     } else {
         res.status(404).send('No match found yet');
     }
@@ -80,11 +106,11 @@ app.get('/chiedi-partita', auth, async (req, res) => {
 })
 
 app.get('/login', async (req, res) => {
-    if(req.cookies.session){
-        res.status(403).send("Already authenticated");
-        return;
-    }
-    
+    // if(req.cookies.session){
+    //     res.status(403).send("Already authenticated");
+    //     return;
+    // }
+
     try {
         const cookie = jwt.sign(JSON.stringify({ 'id': getID() }), KEY);
 

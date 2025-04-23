@@ -10,7 +10,10 @@ class GameInstance {
         this.MATRIX = [[0, 0, 0], [0, 0, 0], [0, 0, 0]];
     }
 
-    move(X, Y){
+    move(playerID, X, Y){
+        if((this.turn == 1 && this.player1ID != playerID) || (this.turn == 2 && this.player2ID != playerID))
+            throw new Error('Not your turn');
+
         if((X < 0 || X >= 3) || (Y < 0 || Y >= 3) || this.MATRIX[X][Y] != 0){
             throw new Error('Invalid move');
         }
@@ -50,6 +53,16 @@ class GameInstance {
 
 }
 
+function move(gameID, playerID, X, Y){
+    try{
+        active_matches[gameID].move(playerID, X, Y);
+    } catch(err){
+        return {valid: false, reason: err.message};
+    }
+
+    return {valid: true, reason: undefined};
+}
+
 function addMatch(player1ID, player2ID){
     active_matches[globalGameID] = new GameInstance(player1ID, player2ID, globalGameID);
     return globalGameID ++;
@@ -72,4 +85,4 @@ function playerIsPartOfGame(gameID, playerID){
     return (instance.player1ID === playerID || instance.player2ID === playerID);
 }
 
-module.exports = { addMatch, checkIfMatchExists, playerIsPartOfGame }
+module.exports = { addMatch, checkIfMatchExists, playerIsPartOfGame, move }
