@@ -64,4 +64,12 @@ function checkIfMatchExists(player1ID, player2ID){
     return { exists: false, gameID: undefined };
 }
 
-module.exports = { addMatch, checkIfMatchExists }
+function playerIsPartOfGame(gameID, playerID){
+    const instance = active_matches[gameID];
+
+    if(!instance) return false;
+
+    return (instance.player1ID === playerID || instance.player2ID === playerID);
+}
+
+module.exports = { addMatch, checkIfMatchExists, playerIsPartOfGame }
