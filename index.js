@@ -22,6 +22,7 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/bootstrap', express.static(path.join(__dirname, 'node_modules/bootstrap/dist')));
+app.use('/assets', express.static(path.join(__dirname, '/templates/images')));
 
 function auth(req, res, next) {
     const cookie = req.cookies.session;
