@@ -37,12 +37,13 @@
 
         <script>
             const endpoint = "/chiedi-partita";
+            let redirectUrl = undefined;
 
             function wait(seconds) {
                 return new Promise(resolve => setTimeout(resolve, seconds * 1000));
             }
 
-            async function ConnectToServer()
+            function ConnectToServer()
             {
                 const status_text = document.getElementById('status');
                 const play_button = document.getElementById('play-button');
@@ -50,20 +51,30 @@
                 status_text.innerText = "Connecting to the server...";
                 play_button.disabled = true;
 
-                var resp;
-                do{
+                const tryConnect = new Promise(async function(resolve, reject) {
+                    let resp;
+                    do{
+                        await wait(2);
+                        resp = await fetch(endpoint, { redirect: 'manual' });
+                    } while (resp.status != 200)
+                    
+                    data = await resp.json();
+                    resolve(data['game']);
+                });
 
-                    await wait(2);
-                    resp = await fetch(endpoint, { redirect: 'manual' });
-                    console.log(resp.status)
+                tryConnect.then((gameID) => {
+                    redirectUrl = '/games/' + gameID;
 
-                } while(resp.status != 302);
+                    status_text.innerText = "";
+                    play_button.disabled = false;
+                    goToGame();
+                })
+            }
 
-                const redirectUrl = resp.headers.get('Location');
-                window.location.href = redirectUrl;
-
-                status_text.innerText = "";
-                play_button.disabled = false;
+            function goToGame(){
+                if(redirectUrl !== undefined){
+                    window.location.href = redirectUrl;
+                }
             }
 
             addEventListener("load", async (event) => {

@@ -100,13 +100,12 @@ app.get('/chiedi-partita', auth, async (req, res) => {
         if(!exists)
             gameID = addMatch(player1ID, player2ID);
         
-        res.redirect('/games/' + gameID);
+        res.status(200).json({game: gameID});
     } else {
         res.status(404).send('No match found yet');
     }
 
     return;
-
 })
 
 app.get('/login', async (req, res) => {
