@@ -22,8 +22,7 @@
             font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif
         }
 
-        .icone {
-            position: absolute;
+        body {
             top: 0;
             left: 0;
             width: 100vw;
@@ -32,43 +31,38 @@
 
             background-image:
                 url('/assets/O.png'),
-                url('/assets/X.png');
-            background-repeat: repeat, repeat;
-            background-size: 400px 400px, 400px 400px;
+                url('/assets/X.png'),
+                linear-gradient(90deg, rgba(0, 240, 236, 1) 0%, rgba(0, 191, 230, 1) 100%);
+            background-repeat: repeat, repeat, no-repeat;
+            background-size: 400px 400px, 400px 400px, auto auto;
 
-            background-position: 0 0, 200px 200px;
+            background-position: 0 0, 200px 200px, 0 0;
             animation: muovi-sfondo 10s linear infinite;
-
-
-        }
-
-        body {
-            background-image: linear-gradient(90deg, rgba(0, 240, 236, 1) 0%, rgba(0, 191, 230, 1) 100%);
         }
 
         @keyframes muovi-sfondo {
             to {
-                background-position: -400px -400px, -200px -200px;
+                background-position: -400px -400px, -200px -200px, 0 0;
             }
         }
     </style>
 
 </head>
 
-<body class="bg-info bg-gradient">
-    <div class="icone">
-        <div class="center-flex container flex-column vh-100 ">
+<body>
+    
+    <div class="center-flex container flex-column vh-100 ">
 
-            <div class="center-flex card card-width border-2 border-black">
-                <div class="center-flex card-body flex-column">
-                    <h5 class="card-title fs-1 custom-font">Tic Tac Toe!</h5>
-                    <button id="play-button" type="button" class="btn btn-outline-warning fs-1 p-5 text-dark mt-4 border-4"
-                        onclick="ConnectToServer()">PLAY!</button>
-                    <p id="status" class="card-text mt-4">Welcome</p>
-                </div>
+        <div class="center-flex card card-width border-2 border-black">
+            <div class="center-flex card-body flex-column">
+                <h5 class="card-title fs-1 custom-font">Tic Tac Toe!</h5>
+                <button id="play-button" type="button" class="btn btn-outline-warning fs-1 p-5 text-dark mt-4 border-4"
+                    onclick="ConnectToServer()">PLAY!</button>
+                <p id="status" class="card-text mt-4">Welcome</p>
             </div>
         </div>
     </div>
+    
 
     <script>
         const endpoint = "/chiedi-partita";
