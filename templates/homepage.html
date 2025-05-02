@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tris</title>
     <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+
+    <!-- REMOVE -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
 
     <style>
@@ -24,6 +26,9 @@
         }
 
         body {
+            color: white;
+            font-weight: bolder;
+
             top: 0;
             left: 0;
             width: 100vw;
@@ -46,6 +51,12 @@
                 background-position: -400px -400px, -200px -200px, 0 0;
             }
         }
+
+        body.animate {
+            background-image:
+                none, none,
+                
+        }
     </style>
 
 </head>
@@ -62,18 +73,58 @@
                 <p id="status" class="card-text mt-4">Welcome</p>
             </div>
         </div>
+
+        <p class="text-center center-flex">Marco Balducci - Simone Ceccarelli - Fabio Fantini - Daniele Broccoli</p>
+
     </div>
     
-
     <script>
         const endpoint = "/chiedi-partita";
+
+        const from1 = [0, 240, 236];
+        const to1 = [0, 64, 240];
+        const from2 = [0, 191, 230];
+        const to2 = [0, 230, 181];
+
         let redirectUrl = undefined;
+
+        function animateGradient(fromColor1, toColor1, fromColor2, toColor2, duration = 1000, steps = 60) {
+            let step = 0;
+            const intervalTime = duration / steps;
+
+            const interpolate = (start, end) => {
+                return start.map((val, i) => end[i] - val);
+            };
+
+            const delta1 = interpolate(fromColor1, toColor1);
+            const delta2 = interpolate(fromColor2, toColor2);
+
+            const interval = setInterval(() => {
+                const currentColor1 = fromColor1.map((val, i) =>
+                    Math.round(val + delta1[i] * step / steps)
+                );
+                const currentColor2 = fromColor2.map((val, i) =>
+                    Math.round(val + delta2[i] * step / steps)
+                );
+
+                document.body.style.backgroundImage = `
+                    url('./assets/O.png'),
+                    url('./assets/X.png'),
+                    linear-gradient(90deg, rgb(${currentColor1.join(',')}) 0%, rgb(${currentColor2.join(',')}) 100%)
+                `;
+
+                step++;
+                if (step > steps) clearInterval(interval);
+            }, intervalTime);
+        }
 
         function wait(seconds) {
             return new Promise(resolve => setTimeout(resolve, seconds * 1000));
         }
 
         function ConnectToServer() {
+            animateGradient(from1, to1, from2, to2);
+
             const status_text = document.getElementById('status');
             const play_button = document.getElementById('play-button');
 
@@ -111,6 +162,8 @@
         });
     </script>
     <script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    <!-- REMOVE -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js" integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq" crossorigin="anonymous"></script>
 </body>
 
