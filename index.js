@@ -60,7 +60,7 @@ app.get('/games/:gameID', auth, async (req, res) => {
         return;
     }
     
-    res.render('tris', {isPlayerOne: isPlayerOne(gameID, playerID)});
+    res.render('tris', {isPlayerOne: isPlayerOne(gameID, playerID), playerID: playerID});
 })
 
 app.get('/muovi/:gameID', auth, async (req, res) => {
