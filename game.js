@@ -1,6 +1,17 @@
 let active_matches = {};
 let globalGameID = 0;
 
+const winningCombinations = [
+    [1, 2, 3],
+    [4, 5, 6],
+    [7, 8, 9],
+    [1, 4, 7],
+    [2, 5, 8],
+    [3, 6, 9],
+    [1, 5, 9],
+    [3, 5, 7]
+  ];
+
 class GameInstance {
     constructor(player1ID, player2ID, gameID){
         this.player1ID = player1ID;
@@ -8,6 +19,7 @@ class GameInstance {
         this.id = gameID;
         this.turn = 1;
         this.MATRIX = [[0, 0, 0], [0, 0, 0], [0, 0, 0]];
+        this.lastMove = undefined;
     }
 
     move(playerID, X, Y){
@@ -19,6 +31,8 @@ class GameInstance {
         }
 
         this.MATRIX[X][Y] = this.turn;
+        this.lastMove = {'X': X, 'Y':Y};
+
         switch(this.turn){
             case 1:
                 this.turn = 2;
@@ -31,8 +45,28 @@ class GameInstance {
         }
     }
 
+    getLastMove(playerID){
+        if((this.turn == 1 && this.player1ID != playerID) || (this.turn == 2 && this.player2ID != playerID))
+            throw new Error('The opponent hasn\'t made a move yet');
+
+        return this.lastMove; // {'X': X, 'Y':Y}
+    }
+
     checkWin(){
-        //TODO
+        if(this.checkStalemate())
+            throw new Error('Stalemate');
+
+        for(let i = 0; i < winningCombinations.length; i++){
+            const [a, b, c] = winningCombinations[i];
+
+            if(this.MATRIX[(a-a%3)/3][a%3] == 1 && this.MATRIX[(b-b%3)/3][b%3] == 1 && this.MATRIX[(c-c%3)/3][c%3] == 1)
+                return {win: true, winner: this.player1ID};
+
+            if(this.MATRIX[(a-a%3)/3][a%3] == 2 && this.MATRIX[(b-b%3)/3][b%3] == 2 && this.MATRIX[(c-c%3)/3][c%3] == 2)
+                return {win: true, winner: this.player2ID};
+        }
+
+        return {win: false, winner: undefined};
     }
 
     /**
@@ -63,6 +97,22 @@ function move(gameID, playerID, X, Y){
     return {valid: true, reason: undefined};
 }
 
+function getLastMove(gameID, playerID){
+    try{
+        return active_matches[gameID].getLastMove(playerID);
+    } catch(err){
+        return undefined;
+    }
+}
+
+function checkWinAndStalemate(gameID){
+    try{
+        return active_matches[gameID].checkWin();
+    } catch(err){
+        return undefined; // if undefined, stalemate
+    }
+}
+
 function addMatch(player1ID, player2ID){
     active_matches[globalGameID] = new GameInstance(player1ID, player2ID, globalGameID);
     return globalGameID ++;
@@ -85,4 +135,8 @@ function playerIsPartOfGame(gameID, playerID){
     return (instance.player1ID === playerID || instance.player2ID === playerID);
 }
 
-module.exports = { addMatch, checkIfMatchExists, playerIsPartOfGame, move }
+function deleteInstance(gameID){
+    delete active_matches[gameID];
+}
+
+module.exports = { addMatch, checkIfMatchExists, playerIsPartOfGame, move, getLastMove, checkWinAndStalemate, deleteInstance }

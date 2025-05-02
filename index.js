@@ -11,7 +11,7 @@ const app = express();
 const KEY = crypto.randomBytes(32).toString('hex');
 
 const { getID, matchPlayer } = require('./matchmaking.js');
-const { addMatch, checkIfMatchExists, playerIsPartOfGame, move } = require('./game.js');
+const { addMatch, checkIfMatchExists, playerIsPartOfGame, move, getLastMove, checkWinAndStalemate, deleteInstance } = require('./game.js');
 
 //setup ejs for templates and templates folder
 app.set('view engine', 'ejs');
@@ -86,8 +86,52 @@ app.get('/muovi/:gameID', auth, async (req, res) => {
     }
 
     result = move(gameID, playerID, row, col);
+    const winData = checkWinAndStalemate(gameID);
+
+    if (winData === undefined){ // stalemate
+        res.status(554).send('stalemate');
+        return;
+    } else if(winData['win'] === true){
+        res.status(555).json(winData);
+        return;
+    }
 
     res.status(200).json(result);
+})
+
+app.get('/chiedi-mossa/:gameID', auth, (req, res) => {
+    const cookie = req.cookies.session;
+    const playerID = jwt.decode(cookie).id;
+    const gameID = req.params.gameID;
+
+    if(!gameID){
+        res.status(400).send("Invalid gameID");
+        return;
+    }
+    
+    if(!playerIsPartOfGame(gameID, playerID)){
+        res.status(401).send("You are not part of this match! 😡");
+        return;
+    }
+
+    const lastMove = getLastMove(gameID, playerID);
+    const winData = checkWinAndStalemate(gameID);
+
+    if(winData === undefined){
+        deleteInstance(gameID);
+        res.status(554).send('stalemate');
+        return;
+    }
+    else if (winData['win'] === true){
+        deleteInstance(gameID);
+        res.status(555).json({'winner':winData['winner'], lastMove});
+        return;
+    }
+
+    if(lastMove !== undefined)
+        res.status(200).json(lastMove);
+    else
+        res.status(420).send();
 })
 
 app.get('/chiedi-partita', auth, async (req, res) => {
