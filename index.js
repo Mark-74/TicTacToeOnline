@@ -11,7 +11,7 @@ const app = express();
 const KEY = crypto.randomBytes(32).toString('hex');
 
 const { getID, matchPlayer } = require('./matchmaking.js');
-const { addMatch, checkIfMatchExists, playerIsPartOfGame, move, getLastMove, checkWinAndStalemate, deleteInstance } = require('./game.js');
+const { addMatch, checkIfMatchExists, playerIsPartOfGame, move, getLastMove, checkWinAndStalemate, deleteInstance, isPlayerOne } = require('./game.js');
 
 //setup ejs for templates and templates folder
 app.set('view engine', 'ejs');
@@ -60,8 +60,7 @@ app.get('/games/:gameID', auth, async (req, res) => {
         return;
     }
     
-    //TODO: prendi gameID e utilizzalo per gestire la partita
-    res.send('!')
+    res.render('tris', {isPlayerOne: isPlayerOne(gameID, playerID)});
 })
 
 app.get('/muovi/:gameID', auth, async (req, res) => {

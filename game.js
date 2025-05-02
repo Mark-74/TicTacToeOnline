@@ -135,8 +135,12 @@ function playerIsPartOfGame(gameID, playerID){
     return (instance.player1ID === playerID || instance.player2ID === playerID);
 }
 
+function isPlayerOne(gameID, playerID){
+    return active_matches[gameID].player1ID === playerID;
+}
+
 function deleteInstance(gameID){
     delete active_matches[gameID];
 }
 
-module.exports = { addMatch, checkIfMatchExists, playerIsPartOfGame, move, getLastMove, checkWinAndStalemate, deleteInstance }
+module.exports = { addMatch, checkIfMatchExists, playerIsPartOfGame, move, getLastMove, checkWinAndStalemate, deleteInstance, isPlayerOne }

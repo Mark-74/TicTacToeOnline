@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Tic Tac Toe Game</title>
+    <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+
+    <style>
+        .cell {
+            width: 25%;
+            height: 25vh;
+            text-align: center;
+            vertical-align: middle;
+            cursor: pointer;
+            justify-content: center;
+            align-items: center;
+            border: 2px solid black;
+            display: flex;
+            font-size: 2rem;
+            background-color: white;
+            color: black;
+        }
+
+        .cell:hover {
+            background-color: #ffc107;
+        }
+
+        body {
+            color: white;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+
+            background-image:
+                url('/assets/O.png'),
+                url('/assets/X.png'),
+                linear-gradient(90deg, rgba(0, 240, 236, 1) 0%, rgba(0, 191, 230, 1) 100%);
+            background-repeat: repeat, repeat, no-repeat;
+            background-size: 400px 400px, 400px 400px, auto auto;
+
+            background-position: 0 0, 200px 200px, 0 0;
+            animation: muovi-sfondo 10s linear infinite;
+
+        }
+
+        @keyframes muovi-sfondo {
+            to {
+                background-position: -400px -400px, -200px -200px, 0 0;
+            }
+        }
+    </style>
+</head>
+
+<body class="d-flex justify-content-center align-item-center vh-100">
+    <div class="container text-center">
+        <h2 class="mb-5 mt-4">Tic Tac Toe Game</h2>
+        <div class="row d-flex justify-content-center">
+            <div class="col-4 cell" id="00" onclick="SendMove(0,0)"></div>
+            <div class="col-4 cell" id="01" onclick="SendMove(0,1)"></div>
+            <div class="col-4 cell" id="02" onclick="SendMove(0,2)"></div>
+        </div>
+        <div class="row d-flex justify-content-center">
+            <div class="col-4 cell" id="10" onclick="SendMove(1,0)"></div>
+            <div class="col-4 cell" id="11" onclick="SendMove(1,1)"></div>
+            <div class="col-4 cell" id="12" onclick="SendMove(1,2)"></div>
+        </div>
+        <div class="row d-flex justify-content-center">
+            <div class="col-4 cell" id="20" onclick="SendMove(2,0)"></div>
+            <div class="col-4 cell" id="21" onclick="SendMove(2,1)"></div>
+            <div class="col-4 cell" id="22" onclick="SendMove(2,2)"></div>
+        </div>
+    </div>
+
+    <script>
+        const isPlayerOne = <%= isPlayerOne %>
+        const occupiedPos = [];
+        const url = window.location.pathname;
+        const id = parseInt(url.substring(url.lastIndexOf('/') + 1));
+        const symbol = 'X';
+        const opponentStepSis = 'O';
+
+        if(!isPlayerOne)
+            retrieveMove();
+
+        function wait(seconds) {
+            return new Promise(resolve => setTimeout(resolve, seconds * 1000));
+        }
+
+        function retrieveMove(){
+            const getMove = new Promise(async function (resolve, reject) {
+                let resp;
+                do {
+                    await wait(1);
+                    resp = await fetch(`/chiedi-mossa/${id}`);
+                } while (resp.status === 420)
+
+                data = await resp.json();
+                resolve(data);
+            });
+
+            getMove.then((data) => {
+                document.getElementById(`${data['X']}${data['Y']}`).innerText = opponentStepSis;
+            })
+        }
+
+        function SendMove(row, col) {
+            let data = { row, col };
+            if (occupiedPos.includes(data)) {
+                throw new Error("Mossa Invalida!");
+                return;
+            }
+
+            fetch('/muovi/' + id + '?row=' + row + '&col=' + col)
+            .then((response) => {
+                console.log('Response:', response); 
+                if (response.status === 555) {
+                    console.log('Someone won');
+                    return;
+                } else if (response.status === 554) {
+                    console.log('Stalemate');
+                    return;
+                } else {
+                    return response.json(); 
+                }
+            })
+            .then((data) => {
+                console.log('Data:', data); 
+                if (!data) return;
+
+                occupiedPos.push(data);
+                if (data['valid'] === false)
+                    alert(data['reason']);
+                else
+                    document.getElementById(`${row}${col}`).innerText = symbol;
+                
+                retrieveMove();
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+
+        }
+
+    </script>
+    <script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
