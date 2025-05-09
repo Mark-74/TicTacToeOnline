@@ -3,8 +3,8 @@
 
 <head>
     <title>Tic Tac Toe Game</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
+    <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+
     <style>
         .cell {
             width: 25%;
@@ -18,6 +18,7 @@
             display: flex;
             font-size: 2rem;
             background-color: white;
+            color: black;
         }
 
         .cell:hover {
@@ -25,7 +26,7 @@
         }
 
         body {
-            color:white;
+            color: white;
             top: 0;
             left: 0;
             width: 100vw;
@@ -33,8 +34,8 @@
             overflow: hidden;
 
             background-image:
-                url('./assets/O.png'),
-                url('./assets/X.png'),
+                url('/assets/O.png'),
+                url('/assets/X.png'),
                 linear-gradient(90deg, rgba(0, 240, 236, 1) 0%, rgba(0, 191, 230, 1) 100%);
             background-repeat: repeat, repeat, no-repeat;
             background-size: 400px 400px, 400px 400px, auto auto;
@@ -48,11 +49,6 @@
             to {
                 background-position: -400px -400px, -200px -200px, 0 0;
             }
-        }
-
-        .modal-content {
-            background-color: #4CAF50;
-            color: white;
         }
     </style>
 </head>
@@ -77,30 +73,63 @@
         </div>
     </div>
 
-
-    <div class="modal fade" id="vittoriaModal" tabindex="-1" aria-labelledby="vittoriaModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="vittoriaModalLabel">Complimenti!</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    Hai vinto! Congratulazioni!
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Chiudi</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <script>
+        const isPlayerOne = <%= isPlayerOne %>
+        const playerID = <%= playerID %>
         const occupiedPos = [];
         const url = window.location.pathname;
         const id = parseInt(url.substring(url.lastIndexOf('/') + 1));
         const symbol = 'X';
         const opponentStepSis = 'O';
+
+        if(!isPlayerOne)
+            retrieveMove();
+
+        function wait(seconds) {
+            return new Promise(resolve => setTimeout(resolve, seconds * 1000));
+        }
+
+        function retrieveMove(){
+            const getMove = new Promise(async function (resolve, reject) {
+                let resp;
+                do {
+                    await wait(1);
+                    try{
+                        resp = await fetch(`/chiedi-mossa/${id}`);
+                        console.log(resp.status)
+                    } catch(err){
+                        // nothing
+                    }
+                } while (resp.status === 420)
+                
+                data = await resp.json();
+
+                if (resp.status === 555){
+                    data['case'] = 1;
+                } else {
+                    data['case'] = 0;
+                }
+
+                resolve(data)
+            });
+
+            getMove.then((data) => {
+                console.log(`data: ${JSON.stringify(data)}`);
+                document.getElementById(`${data['X']}${data['Y']}`).innerText = opponentStepSis;
+                if (data['case'] === 1){
+                    if (data['winner'] === 'stalemate'){
+                        console.log('stalemate');
+                        // call stalemate banner
+                    } else if (data['winner'] === playerID) {
+                        console.log('you win!');
+                        // you win!
+                    } else {
+                        console.log('you lose!');
+                        // you lose!
+                    }
+                }
+            })
+        }
 
         function SendMove(row, col) {
             let data = { row, col };
@@ -108,38 +137,45 @@
                 throw new Error("Mossa Invalida!");
                 return;
             }
-            let jsonString = JSON.stringify(data);
 
-            fetch('/muovi/' + id + '?row=' + row + '&col=' + col, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: jsonString
+            fetch('/muovi/' + id + '?row=' + row + '&col=' + col)
+            .then((response) => {
+                console.log('Response:', response); 
+                return response.json();
             })
-                .then(response => response.json()
-                    .then(result => ({
-                        status: result.status,
-                    })));
-            let ris = result.status;
-            if (ris) {
-                occupiedPos.push(data);
-                document.getElementById(row.toString() + col.toString()).innerText = symbol;
-            } else {
-                throw new Error("Mossa invalida!");
-            }
-            return;
+            .then((data) => {
+                if (!data) return;
+                console.log(`data: ${JSON.stringify(data)}`);
 
-        }
-        function mostraVittoria() {
-            const myModal = new bootstrap.Modal(document.getElementById('vittoriaModal'));
-            myModal.show();  
+                if (data['winner'] !== undefined){
+                    if (data['winner'] === 'stalemate'){
+                        console.log('stalemate');
+                        // call stalemate banner
+                    } else if (data['winner'] === playerID) {
+                        console.log('you win!');
+                        // you win!
+                    } else {
+                        console.log('you lose!');
+                        // you lose!
+                    }
+                }
+
+                occupiedPos.push(data);
+                if (data['valid'] === false)
+                    alert(data['reason']);
+                else
+                    document.getElementById(`${row}${col}`).innerText = symbol;
+                
+                retrieveMove();
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+
         }
 
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq"
-        crossorigin="anonymous"></script>
+    <script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>
