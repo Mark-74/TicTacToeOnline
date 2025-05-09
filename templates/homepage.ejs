@@ -68,11 +68,48 @@
         const endpoint = "/chiedi-partita";
         let redirectUrl = undefined;
 
+        const from1 = [0, 240, 236];
+        const to1 = [0, 64, 240];
+        const from2 = [0, 191, 230];
+        const to2 = [0, 230, 181];
+
+        function animateGradient(fromColor1, toColor1, fromColor2, toColor2, duration = 1000, steps = 60) {
+            let step = 0;
+            const intervalTime = duration / steps;
+
+            const interpolate = (start, end) => {
+                return start.map((val, i) => end[i] - val);
+            };
+
+            const delta1 = interpolate(fromColor1, toColor1);
+            const delta2 = interpolate(fromColor2, toColor2);
+
+            const interval = setInterval(() => {
+                const currentColor1 = fromColor1.map((val, i) =>
+                    Math.round(val + delta1[i] * step / steps)
+                );
+                const currentColor2 = fromColor2.map((val, i) =>
+                    Math.round(val + delta2[i] * step / steps)
+                );
+
+                document.body.style.backgroundImage = `
+                    url('./assets/O.png'),
+                    url('./assets/X.png'),
+                    linear-gradient(90deg, rgb(${currentColor1.join(',')}) 0%, rgb(${currentColor2.join(',')}) 100%)
+                `;
+
+                step++;
+                if (step > steps) clearInterval(interval);
+            }, intervalTime);
+        }
+
         function wait(seconds) {
             return new Promise(resolve => setTimeout(resolve, seconds * 1000));
         }
 
         function ConnectToServer() {
+            animateGradient(from1, to1, from2, to2);
+
             const status_text = document.getElementById('status');
             const play_button = document.getElementById('play-button');
 
