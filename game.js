@@ -53,18 +53,18 @@ class GameInstance {
     }
 
     checkWin(){
-        if(this.checkStalemate())
-            throw new Error('Stalemate');
-
         for(let i = 0; i < winningCombinations.length; i++){
             const [a, b, c] = winningCombinations[i];
-
+            
             if(this.MATRIX[(a-a%3)/3][a%3] == 1 && this.MATRIX[(b-b%3)/3][b%3] == 1 && this.MATRIX[(c-c%3)/3][c%3] == 1)
                 return {win: true, winner: this.player1ID};
-
+            
             if(this.MATRIX[(a-a%3)/3][a%3] == 2 && this.MATRIX[(b-b%3)/3][b%3] == 2 && this.MATRIX[(c-c%3)/3][c%3] == 2)
                 return {win: true, winner: this.player2ID};
         }
+        
+        if(this.checkStalemate())
+            throw new Error('Stalemate');
 
         return {win: false, winner: undefined};
     }
