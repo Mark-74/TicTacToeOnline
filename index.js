@@ -22,7 +22,7 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/bootstrap', express.static(path.join(__dirname, 'node_modules/bootstrap/dist')));
-app.use('/assets', express.static(path.join(__dirname, '/templates/images')));
+app.use('/assets', express.static(path.join(__dirname, '/templates/assets')));
 
 function auth(req, res, next) {
     const cookie = req.cookies.session;
@@ -88,10 +88,10 @@ app.get('/muovi/:gameID', auth, async (req, res) => {
     const winData = checkWinAndStalemate(gameID);
 
     if (winData === undefined){ // stalemate
-        res.status(554).send('stalemate');
+        res.status(555).json({'winner': 'stalemate', 'X': row, 'Y': col});
         return;
     } else if(winData['win'] === true){
-        res.status(555).json(winData);
+        res.status(555).json({'winner': winData['winner'], 'X': row, 'Y': col});
         return;
     }
 
@@ -118,12 +118,12 @@ app.get('/chiedi-mossa/:gameID', auth, (req, res) => {
 
     if(winData === undefined){
         deleteInstance(gameID);
-        res.status(554).send('stalemate');
+        res.status(555).json({'winner': 'stalemate', 'X': lastMove['X'], 'Y': lastMove['Y'] });
         return;
     }
     else if (winData['win'] === true){
         deleteInstance(gameID);
-        res.status(555).json({'winner':winData['winner'], lastMove});
+        res.status(555).json({'winner':winData['winner'], 'X': lastMove['X'], 'Y': lastMove['Y']});
         return;
     }
 

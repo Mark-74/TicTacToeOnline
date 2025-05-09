@@ -94,15 +94,40 @@
                 let resp;
                 do {
                     await wait(1);
-                    resp = await fetch(`/chiedi-mossa/${id}`);
+                    try{
+                        resp = await fetch(`/chiedi-mossa/${id}`);
+                        console.log(resp.status)
+                    } catch(err){
+                        // nothing
+                    }
                 } while (resp.status === 420)
-
+                
                 data = await resp.json();
-                resolve(data);
+
+                if (resp.status === 555){
+                    data['case'] = 1;
+                } else {
+                    data['case'] = 0;
+                }
+
+                resolve(data)
             });
 
             getMove.then((data) => {
+                console.log(`data: ${JSON.stringify(data)}`);
                 document.getElementById(`${data['X']}${data['Y']}`).innerText = opponentStepSis;
+                if (data['case'] === 1){
+                    if (data['winner'] === 'stalemate'){
+                        console.log('stalemate');
+                        // call stalemate banner
+                    } else if (data['winner'] === playerID) {
+                        console.log('you win!');
+                        // you win!
+                    } else {
+                        console.log('you lose!');
+                        // you lose!
+                    }
+                }
             })
         }
 
@@ -116,19 +141,24 @@
             fetch('/muovi/' + id + '?row=' + row + '&col=' + col)
             .then((response) => {
                 console.log('Response:', response); 
-                if (response.status === 555) {
-                    console.log('Someone won');
-                    return;
-                } else if (response.status === 554) {
-                    console.log('Stalemate');
-                    return;
-                } else {
-                    return response.json(); 
-                }
+                return response.json();
             })
             .then((data) => {
-                console.log('Data:', data); 
                 if (!data) return;
+                console.log(`data: ${JSON.stringify(data)}`);
+
+                if (data['winner'] !== undefined){
+                    if (data['winner'] === 'stalemate'){
+                        console.log('stalemate');
+                        // call stalemate banner
+                    } else if (data['winner'] === playerID) {
+                        console.log('you win!');
+                        // you win!
+                    } else {
+                        console.log('you lose!');
+                        // you lose!
+                    }
+                }
 
                 occupiedPos.push(data);
                 if (data['valid'] === false)
