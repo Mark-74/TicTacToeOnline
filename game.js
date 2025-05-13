@@ -2,14 +2,14 @@ let active_matches = {};
 let globalGameID = 0;
 
 const winningCombinations = [
-    [1, 2, 3],
-    [4, 5, 6],
-    [7, 8, 9],
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
     [1, 4, 7],
     [2, 5, 8],
-    [3, 6, 9],
-    [1, 5, 9],
-    [3, 5, 7]
+    [0, 4, 8],
+    [2, 4, 6]
   ];
 
 class GameInstance {
@@ -53,14 +53,19 @@ class GameInstance {
     }
 
     checkWin(){
-        for(let i = 0; i < winningCombinations.length; i++){
-            const [a, b, c] = winningCombinations[i];
-            
-            if(this.MATRIX[(a-a%3)/3][a%3] == 1 && this.MATRIX[(b-b%3)/3][b%3] == 1 && this.MATRIX[(c-c%3)/3][c%3] == 1)
-                return {win: true, winner: this.player1ID};
-            
-            if(this.MATRIX[(a-a%3)/3][a%3] == 2 && this.MATRIX[(b-b%3)/3][b%3] == 2 && this.MATRIX[(c-c%3)/3][c%3] == 2)
-                return {win: true, winner: this.player2ID};
+        try{
+
+            for(let i = 0; i < winningCombinations.length; i++){
+                const [a, b, c] = winningCombinations[i];
+
+                if(this.MATRIX[(a-a%3)/3][a%3] == 1 && this.MATRIX[(b-b%3)/3][b%3] == 1 && this.MATRIX[(c-c%3)/3][c%3] == 1)
+                    return {win: true, winner: this.player1ID};
+                
+                if(this.MATRIX[(a-a%3)/3][a%3] == 2 && this.MATRIX[(b-b%3)/3][b%3] == 2 && this.MATRIX[(c-c%3)/3][c%3] == 2)
+                    return {win: true, winner: this.player2ID};
+            }
+        } catch (Error){
+            console.log(Error);
         }
         
         if(this.checkStalemate())
