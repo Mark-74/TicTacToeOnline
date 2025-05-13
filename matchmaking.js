@@ -1,3 +1,5 @@
+// Marco Balducci, Fabio Fantini, Simone Ceccarelli, Daniele Broccoli 4H
+
 let queue = [];
 let matches = {};
 let IDcounter = 0;
@@ -25,9 +27,11 @@ function matchPlayer(playerID){ // ritorna true se matchato + id giocatore
         queue.push(playerID);
     }
 
+    // caso non è stato trovato nessun giocatore
     return { success: false, player2ID: undefined }
 }
 
+// ritorna l'id del nuovo utente
 function getID(){
     return IDcounter++;
 }
