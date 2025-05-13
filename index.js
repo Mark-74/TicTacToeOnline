@@ -123,7 +123,12 @@ app.get('/chiedi-mossa/:gameID', auth, (req, res) => {
     }
     else if (winData['win'] === true){
         deleteInstance(gameID);
-        res.status(555).json({'winner':winData['winner'], 'X': lastMove['X'], 'Y': lastMove['Y']});
+        try{
+            res.status(555).json({'winner':winData['winner'], 'X': lastMove['X'], 'Y': lastMove['Y']});
+        } catch (err){
+            console.log(err);
+            res.status(500).send("Error while sending winner data");
+        }
         return;
     }
 
@@ -135,7 +140,6 @@ app.get('/chiedi-mossa/:gameID', auth, (req, res) => {
 
 app.get('/chiedi-partita', auth, async (req, res) => {
     const cookie = req.cookies.session;
-    
     const player1ID = jwt.decode(cookie).id
     
     const { success, player2ID } = matchPlayer(player1ID);

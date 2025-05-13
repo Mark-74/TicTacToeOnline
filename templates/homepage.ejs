@@ -18,11 +18,14 @@
             width: 30rem;
         }
 
-        .custom-font {
-            font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif
+        @font-face { 
+            font-family: Delicious; 
+            font-weight: bold; 
+            src: url('/assets/Fonstars-4Bo0p.otf');
         }
 
         body {
+            font-family: Delicious;
             top: 0;
             left: 0;
             width: 100vw;
@@ -57,7 +60,7 @@
 
         <div class="center-flex card card-width border-2 border-black">
             <div class="center-flex card-body flex-column">
-                <h5 class="card-title fs-1 custom-font">Tic Tac Toe!</h5>
+                <h5 class="card-title fs-1">Tic Tac Toe!</h5>
                 <button id="play-button" type="button" class="btn btn-outline-warning fs-1 p-5 text-dark mt-4 border-4"
                     onclick="ConnectToServer()">PLAY!</button>
                 <p id="status" class="card-text mt-4">Welcome</p>

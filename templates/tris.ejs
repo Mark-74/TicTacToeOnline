@@ -25,7 +25,14 @@
             background-color: #ffc107;
         }
 
+        @font-face { 
+            font-family: Delicious; 
+            font-weight: bold; 
+            src: url('/assets/Fonstars-4Bo0p.otf');
+        }
+
         body {
+            font-family: Delicious;
             color: white;
             top: 0;
             left: 0;
@@ -108,7 +115,7 @@
             opponentSymbol = 'X';
 
             retrieveMove();
-            document.getElementById("turn").innerHTML = "NOT you turn..";
+            document.getElementById("turn").innerHTML = "NOT your turn..";
         }
         else
         {
@@ -164,7 +171,7 @@
             })
         }
 
-        function SendMove(row, col) {
+        function SendMove(row, col) {            
             let data = { row, col };
             if (occupiedPos.includes(data)) {
                 throw new Error("Mossa Invalida!");
@@ -186,7 +193,7 @@
                 else
                     document.getElementById(`${row}${col}`).innerText = symbol;
 
-                document.getElementById("turn").innerHTML = "NOT you turn..";
+                document.getElementById("turn").innerHTML = "NOT your turn..";
 
                 if (data['winner'] !== undefined){
                     if (data['winner'] === 'stalemate'){
