@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    <title>Tic Tac Toe Game</title>
+    <title>Tic Tac Toe - Game</title>
     <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
 
     <style>
@@ -43,6 +43,7 @@
             background-position: 0 0, 200px 200px, 0 0;
             animation: muovi-sfondo 10s linear infinite;
 
+            opacity: 97%;
         }
 
         @keyframes muovi-sfondo {
@@ -50,30 +51,36 @@
                 background-position: -400px -400px, -200px -200px, 0 0;
             }
         }
+
+        .center {
+            display: flex;
+            justify-content: center;
+        }
     </style>
 </head>
 
-<body class="d-flex justify-content-center align-item-center vh-100">
+<body class="center align-items-center flex-column vh-100">
     <div class="container text-center">
-        <h2 class="mb-5 mt-4">Tic Tac Toe Game</h2>
-        <div class="row d-flex justify-content-center">
+        <h2 class="mb-1 mt-1">Tic Tac Toe Game</h2>
+        <h2 id="turn" class="mb-1 mt-1">...</h2>
+        <div class="row center">
             <div class="col-4 cell" id="00" onclick="SendMove(0,0)"></div>
             <div class="col-4 cell" id="01" onclick="SendMove(0,1)"></div>
             <div class="col-4 cell" id="02" onclick="SendMove(0,2)"></div>
         </div>
-        <div class="row d-flex justify-content-center">
+        <div class="row center">
             <div class="col-4 cell" id="10" onclick="SendMove(1,0)"></div>
             <div class="col-4 cell" id="11" onclick="SendMove(1,1)"></div>
             <div class="col-4 cell" id="12" onclick="SendMove(1,2)"></div>
         </div>
-        <div class="row d-flex justify-content-center">
+        <div class="row center">
             <div class="col-4 cell" id="20" onclick="SendMove(2,0)"></div>
             <div class="col-4 cell" id="21" onclick="SendMove(2,1)"></div>
             <div class="col-4 cell" id="22" onclick="SendMove(2,2)"></div>
         </div>
     </div>
 
-    <button id="quit-button" type="button" class="btn btn-outline-warning fs-1 p-5 text-dark mt-4 border-4"onclick="Quit()" hidden>Esci</button>
+    <button id="quit-button" type="button" class="btn btn-outline-warning text-white fs-3 border-4 px-4 py-1 mt-1" onclick="Quit()" hidden>Quit</button>
 
     <script>
         const isPlayerOne = <%= isPlayerOne %>
@@ -81,20 +88,32 @@
         const occupiedPos = [];
         const url = window.location.pathname;
         const id = parseInt(url.substring(url.lastIndexOf('/') + 1));
-        const symbol = 'X';
-        const opponentStepSis = 'O';
 
-        const from = [0, 240, 236];
-        const to = [0, 64, 240];
-        const fromStalemate = [219, 219, 219];
-        const toStalemate = [97, 97, 97];
-        const fromWin = [255, 224, 66];
-        const toWin = [145, 141, 25];
-        const fromLose = [255, 66, 66];
-        const toLose = [112, 24, 24];
+        let symbol = 'X';
+        let opponentSymbol = 'O';
+
+        // background colors
+        const standard1 = [0, 240, 236];
+        const standard2 = [0, 191, 230];
+        const stalemate1 = [219, 219, 219];
+        const stalemate2 = [97, 97, 97];
+        const win1 = [255, 224, 66];
+        const win2 = [145, 141, 25];
+        const lose1 = [255, 66, 66];
+        const lose2 = [112, 24, 24];
 
         if(!isPlayerOne)
+        {
+            symbol = 'O';
+            opponentSymbol = 'X';
+
             retrieveMove();
+            document.getElementById("turn").innerHTML = "NOT you turn..";
+        }
+        else
+        {
+            document.getElementById("turn").innerHTML = "Your Turn!";
+        }
 
         function wait(seconds) {
             return new Promise(resolve => setTimeout(resolve, seconds * 1000));
@@ -104,7 +123,7 @@
             const getMove = new Promise(async function (resolve, reject) {
                 let resp;
                 do {
-                    await wait(1);
+                    await wait(.25);
                     try{
                         resp = await fetch(`/chiedi-mossa/${id}`);
                         console.log(resp.status)
@@ -126,17 +145,20 @@
 
             getMove.then((data) => {
                 console.log(`data: ${JSON.stringify(data)}`);
-                document.getElementById(`${data['X']}${data['Y']}`).innerText = opponentStepSis;
+                document.getElementById(`${data['X']}${data['Y']}`).innerText = opponentSymbol;
+
+                document.getElementById("turn").innerHTML = "Your Turn!";
+
                 if (data['case'] === 1){
                     if (data['winner'] === 'stalemate'){
                         console.log('stalemate');
-                        EndGame(from, to, fromStalemate, toStalemate, null, null);
+                        EndGame(standard1, stalemate1, standard2, stalemate2, "Stale.png", "Stale.png", "Stalemate");
                     } else if (data['winner'] === playerID) {
                         console.log('you win!');
-                        EndGame(from, to, fromWin, toWin, null, null);
+                        EndGame(standard1, win1, standard2, win2, "Win.png", "Win.png", "You WON!");
                     } else {
                         console.log('you lose!');
-                        EndGame(from, to, fromLose, toLose, null, null);
+                        EndGame(standard1, lose1, standard2, lose2, "Lose.png", "Lose.png", "You lost..");
                     }
                 }
             })
@@ -164,16 +186,18 @@
                 else
                     document.getElementById(`${row}${col}`).innerText = symbol;
 
+                document.getElementById("turn").innerHTML = "NOT you turn..";
+
                 if (data['winner'] !== undefined){
                     if (data['winner'] === 'stalemate'){
                         console.log('stalemate');
-                        EndGame(from, to, fromStalemate, toStalemate, null, null);
+                        EndGame(standard1, stalemate1, standard2, stalemate2, "Stale.png", "Stale.png", "Stalemate");
                     } else if (data['winner'] === playerID) {
                         console.log('you win!');
-                        EndGame(from, to, fromWin, toWin, null, null);
+                        EndGame(standard1, win1, standard2, win2, "Win.png", "Win.png", "You WON!");
                     } else {
                         console.log('you lose!');
-                        EndGame(from, to, fromLose, toLose, null, null);
+                        EndGame(standard1, lose1, standard2, lose2, "Lose.png", "Lose.png", "You lost..");
                     }
                 }
                 
@@ -185,7 +209,7 @@
 
         }
 
-        function animateGradient(fromColor1, toColor1, fromColor2, toColor2, duration = 1000, steps = 60) {
+        function animateGradient(fromColor1, toColor1, fromColor2, toColor2, img1, img2, duration = 1000, steps = 60) {
                 let step = 0;
                 const intervalTime = duration / steps;
 
@@ -205,8 +229,8 @@
                     );
 
                     document.body.style.backgroundImage = `
-                        url('./assets/O.png'),
-                        url('./assets/X.png'),
+                        url('/assets/${img1}'),
+                        url('/assets/${img2}'),
                         linear-gradient(90deg, rgb(${currentColor1.join(',')}) 0%, rgb(${currentColor2.join(',')}) 100%)
                     `;
 
@@ -215,10 +239,10 @@
                 }, intervalTime);
             }
 
-        function EndGame(fromColor1, toColor1, fromColor2, toColor2, img1, img2)
+        function EndGame(fromColor1, toColor1, fromColor2, toColor2, img1, img2, msg)
         {
-            // Todo : cambio immagine
-            animateGradient(fromColor1, toColor1, fromColor2, toColor2);
+            animateGradient(fromColor1, toColor1, fromColor2, toColor2, img1, img2);
+            document.getElementById("turn").innerHTML = msg;
             document.getElementById("quit-button").hidden = false;
         }
 
@@ -226,8 +250,6 @@
         {
             window.location.href = "/";
         }
-
-        // todo : fix quit btn position; fix endgame
 
     </script>
     <script src="/bootstrap/js/bootstrap.bundle.min.js"></script>

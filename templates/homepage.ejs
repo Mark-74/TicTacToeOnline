@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tris</title>
+    <title>Tic Tac Toe - Home</title>
     <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
 
     <style>
@@ -38,6 +38,8 @@
 
             background-position: 0 0, 200px 200px, 0 0;
             animation: muovi-sfondo 10s linear infinite;
+
+            opacity: 97%;
         }
 
         @keyframes muovi-sfondo {
@@ -119,7 +121,7 @@
             const tryConnect = new Promise(async function (resolve, reject) {
                 let resp;
                 do {
-                    await wait(2);
+                    await wait(1);
                     resp = await fetch(endpoint, { redirect: 'manual' });
                 } while (resp.status != 200)
 
