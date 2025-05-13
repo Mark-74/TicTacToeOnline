@@ -1,3 +1,8 @@
+<!--Tic Tac Toe - Client Server-->
+<!--Pagina della home-->
+<!--Marco Balducci, Simone Ceccarelli, Daniele Broccoli, Fabio Fantini-->
+<!--13/05/2025 - 4H-->
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -18,12 +23,15 @@
             width: 30rem;
         }
 
+        /* Font personalizzato */
         @font-face { 
             font-family: Delicious; 
             font-weight: bold; 
             src: url('/assets/Fonstars-4Bo0p.otf');
         }
 
+        /* Sfondo con gradiente e icone che si muovono in diagonale */
+        /* Funziona tramite 3 sfondi, uno è per il colore e gli altri due per le immagini */
         body {
             font-family: Delicious;
             top: 0;
@@ -45,6 +53,7 @@
             opacity: 97%;
         }
 
+        /* Animazione per il movimento delle icone */
         @keyframes muovi-sfondo {
             to {
                 background-position: -400px -400px, -200px -200px, 0 0;
@@ -56,6 +65,7 @@
 
 <body>
     
+    <!-- Carta principale al centro dello schermo -->
     <div class="center-flex container flex-column vh-100 ">
 
         <div class="center-flex card card-width border-2 border-black">
@@ -73,11 +83,13 @@
         const endpoint = "/chiedi-partita";
         let redirectUrl = undefined;
 
+        // Colori per le animazioni con lo sfondo
         const from1 = [0, 240, 236];
         const to1 = [0, 64, 240];
         const from2 = [0, 191, 230];
         const to2 = [0, 230, 181];
 
+        // Funzione per l'aggiornamento graduale dello sfondo
         function animateGradient(fromColor1, toColor1, fromColor2, toColor2, duration = 1000, steps = 60) {
             let step = 0;
             const intervalTime = duration / steps;
@@ -89,6 +101,7 @@
             const delta1 = interpolate(fromColor1, toColor1);
             const delta2 = interpolate(fromColor2, toColor2);
 
+            // Cambio graduale dei colori
             const interval = setInterval(() => {
                 const currentColor1 = fromColor1.map((val, i) =>
                     Math.round(val + delta1[i] * step / steps)
@@ -108,12 +121,13 @@
             }, intervalTime);
         }
 
+        // Metodo per l'interruzione del flusso di esecuzione
         function wait(seconds) {
             return new Promise(resolve => setTimeout(resolve, seconds * 1000));
         }
 
         function ConnectToServer() {
-            animateGradient(from1, to1, from2, to2);
+            animateGradient(from1, to1, from2, to2); // Animazione al click
 
             const status_text = document.getElementById('status');
             const play_button = document.getElementById('play-button');
@@ -121,6 +135,7 @@
             status_text.innerText = "Connecting to the server...";
             play_button.disabled = true;
 
+            // Invio di constanti richieste al server, in attesa che si trovi un altro utente per giocare
             const tryConnect = new Promise(async function (resolve, reject) {
                 let resp;
                 do {
@@ -132,6 +147,7 @@
                 resolve(data['game']);
             });
 
+            // Opponente trovato, redirect al gioco (tris.ejs)
             tryConnect.then((gameID) => {
                 redirectUrl = '/games/' + gameID;
 

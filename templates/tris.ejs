@@ -1,3 +1,8 @@
+<!--Tic Tac Toe - Client Server-->
+<!--Pagina del gioco-->
+<!--Marco Balducci, Simone Ceccarelli, Daniele Broccoli, Fabio Fantini-->
+<!--13/05/2025 - 4H-->
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -6,6 +11,8 @@
     <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
 
     <style>
+
+        /* Singola cella della griglia di gioco */
         .cell {
             width: 25%;
             height: 25vh;
@@ -25,12 +32,14 @@
             background-color: #ffc107;
         }
 
+        /* Font personalizzato */
         @font-face { 
             font-family: Delicious; 
             font-weight: bold; 
             src: url('/assets/Fonstars-4Bo0p.otf');
         }
 
+        /* Sfondo con gradiente animato, vedere "homepage.ejs" per il funzionamento */
         body {
             font-family: Delicious;
             color: white;
@@ -70,6 +79,8 @@
     <div class="container text-center">
         <h2 class="mb-1 mt-1">Tic Tac Toe Game</h2>
         <h2 id="turn" class="mb-1 mt-1">...</h2>
+
+        <!--Griglia del gioco-->
         <div class="row center">
             <div class="col-4 cell" id="00" onclick="SendMove(0,0)"></div>
             <div class="col-4 cell" id="01" onclick="SendMove(0,1)"></div>
@@ -87,9 +98,11 @@
         </div>
     </div>
 
+    <!--Bottone per tornare alla homepage, visibile quando la partita è terminata-->
     <button id="quit-button" type="button" class="btn btn-outline-warning text-white fs-3 border-4 px-4 py-1 mt-1" onclick="Quit()" hidden>Quit</button>
 
     <script>
+        // Questi dati vengono inseriti dal server
         const isPlayerOne = <%= isPlayerOne %>
         const playerID = <%= playerID %>
         const occupiedPos = [];
@@ -99,7 +112,7 @@
         let symbol = 'X';
         let opponentSymbol = 'O';
 
-        // background colors
+        // Colori per le animazioni dello sfondo
         const standard1 = [0, 240, 236];
         const standard2 = [0, 191, 230];
         const stalemate1 = [219, 219, 219];
@@ -126,9 +139,12 @@
             return new Promise(resolve => setTimeout(resolve, seconds * 1000));
         }
 
+        // Metodo per prendere la mossa dall'opponente dal server
         function retrieveMove(){
             const getMove = new Promise(async function (resolve, reject) {
                 let resp;
+
+                // Richiede la mossa effettuata ogni intervallo di tempo
                 do {
                     await wait(.25);
                     try{
@@ -150,6 +166,7 @@
                 resolve(data)
             });
 
+            // Prende la mossa, aggiorna la griglia e controlla se la partita è terminata
             getMove.then((data) => {
                 console.log(`data: ${JSON.stringify(data)}`);
                 document.getElementById(`${data['X']}${data['Y']}`).innerText = opponentSymbol;
@@ -171,6 +188,7 @@
             })
         }
 
+        // Metodo per inviare la mossa al server
         function SendMove(row, col) {            
             let data = { row, col };
             if (occupiedPos.includes(data)) {
@@ -178,6 +196,7 @@
                 return;
             }
 
+            // Invio coordinate della mossa
             fetch('/muovi/' + id + '?row=' + row + '&col=' + col)
             .then((response) => {
                 console.log('Response:', response); 
@@ -208,6 +227,7 @@
                     }
                 }
                 
+                // Una volta inviata la mossa, procedo ad attendere quella dell'opponente
                 retrieveMove();
             })
             .catch((error) => {
@@ -216,6 +236,7 @@
 
         }
 
+        // Metodo per modificare lo sfondo gradualmente, vedere "homepage.ejs"
         function animateGradient(fromColor1, toColor1, fromColor2, toColor2, img1, img2, duration = 1000, steps = 60) {
                 let step = 0;
                 const intervalTime = duration / steps;
@@ -246,6 +267,7 @@
                 }, intervalTime);
             }
 
+        // Metodo chiamato alla fine del gicoo per modificare lo sfondo e avvisare l'esito della partita
         function EndGame(fromColor1, toColor1, fromColor2, toColor2, img1, img2, msg)
         {
             animateGradient(fromColor1, toColor1, fromColor2, toColor2, img1, img2);
@@ -253,6 +275,7 @@
             document.getElementById("quit-button").hidden = false;
         }
 
+        // Redirect alla home (homepge.ejs)
         function Quit() 
         {
             window.location.href = "/";
